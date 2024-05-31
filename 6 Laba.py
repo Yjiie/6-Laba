@@ -1,138 +1,71 @@
-"""
-Задание состоит из двух частей.
-1 часть – написать программу в соответствии со своим вариантом задания. Написать 2 варианта формирования (алгоритмический и с помощью функций Питона), сравнив по времени их выполнение.
-2 часть – усложнить написанную программу, введя по своему усмотрению в условие минимум одно ограничение на характеристики объектов (которое будет сокращать количество переборов)  и целевую функцию для нахождения оптимального  решения.
-Вывести все натуральные числа до n, в записи которых встречается ровно одна нечетная цифра на четной позиции.
-"""
+'''
+Задание состоит из двух частей. 1 часть – написать программу в соответствии со своим вариантом задания. Написать 2 варианта формирования (алгоритмический и с помощью функций Питона), сравнив по времени их выполнение. 2 часть – усложнить написанную программу, введя по своему усмотрению в условие минимум одно ограничение на характеристики объектов (которое будет сокращать количество переборов) и целевую функцию для нахождения оптимального решения.
+
+Пароль состоит из 6 символов. Первые 2 – латинские буквы, остальные - латинские буквы или цифры. Составьте все возможные пароли.
+1й символ - латинская буква, 2ой латинская буква или цифра
+'''
+
+import string
 import timeit
 import itertools
-import numpy as np
 
-# Определение валидности числа для алгоритмического подхода
-def is_valid_alg(number):
-    number_str = str(number)
-    return sum(1 for i, d in enumerate(number_str, start=1) if i % 2 == 0 and int(d) % 2 == 1) == 1
+# 1 часть
 
-# Алгоритмический подход
-def is_valid_alg(number):
-    number_str = str(number)
-    return sum(1 for i, d in enumerate(number_str, start=1) if i % 2 == 0 and int(d) % 2 == 1) == 1
+# Алгоритмический метод формирования
+def generate_password_algorithm(num_passwords):
+    passwords = []
+    alphabet = string.ascii_letters + string.digits
+    for i in range(num_passwords):
+        first_char = string.ascii_letters[i % len(string.ascii_letters)]    # Первый символ латинская буква
+        second_char = alphabet[(i + 1) % len(alphabet)]                     # Второй символ либо цифра, либо буква
+        password = first_char + second_char
+        passwords.append(password)
+    return passwords
 
-def algorithmic_approach(n):
-    result = []
-    for number in range(n):
-        if is_valid_alg(number):
-            result.append(number)
-    return result
+# Метод формирования с помощью функций питона (с помощью itertools)
+def generate_passwords_pythonic():
+    passwords = []
+    alphabet = string.ascii_letters + string.digits
+    combinations = itertools.product(string.ascii_letters, alphabet)
+    for combination in combinations:
+        password = ''.join(combination)
+        passwords.append(password)
+    return passwords
 
-# Функциональный подход с использованием itertools
-def functional_approach_itertools(n):
-    result = []
-    for digits in itertools.product('0123456789', repeat=len(str(n - 1))):
-        number = int(''.join(digits))
-        if number < n and is_valid_alg(number):
-            result.append(number)
-    return result
+generated_passwords = generate_passwords_pythonic()
 
-# Усложненный алгоритмический подход с дополнительным условием кратности 5
-def complex_algorithmic_approach(n):
-    result = []
-    for number in range(0, n, 5):  # Перебор с шагом 5
-        if is_valid_alg(number):
-            result.append(number)
-    return result
+print("1 часть: Генерация паролей до усложнения:","\nВсе возможные комбинации:",generated_passwords, "\nКоличество комбинаций до усложнения:",len(generated_passwords))  # - вывод всех комбинаций паролей (3224) до усложнения
 
-# Функциональный подход с использованием numpy
-def functional_approach_numpy(n):
-    result = []
-    for number in np.arange(n):
-        if is_valid_alg(number):
-            result.append(number)
-    return result
+time_taken_generate_password_algorithm = timeit.timeit(lambda: generate_password_algorithm(10000), number=1)
+print("Время выполнения алгоритмической функции:", time_taken_generate_password_algorithm)
 
-# Усложненный функциональный подход с использованием numpy и условием кратности 5
-def complex_functional_approach_numpy(n):
-    result = []
-    for number in np.arange(0, n, 5):  # Перебор с шагом 5
-        if is_valid_alg(number):
-            result.append(number)
-    return result
-# Усложненный функциональный подход с использованием itertools и условием кратности 5
-def complex_functional_approach_itertools(n):
-    result = []
-    for digits in itertools.product('0123456789', repeat=len(str(n - 1))):
-        number = int(''.join(digits))
-        if number < n and number % 5 == 0 and is_valid_alg(number):
-            result.append(number)
-    return result
-# Сравнение времени выполнения
-n = int(input("Введите число n: "))
+time_taken_generate_passwords_pythonic = timeit.timeit(generate_passwords_pythonic, number=1)
+print("Время выполнения с помощью функций Питона:", time_taken_generate_passwords_pythonic)
 
-# Алгоритмический подход
-start_time_alg = timeit.default_timer()
-algorithmic_result = algorithmic_approach(n)
-time_alg = timeit.default_timer() - start_time_alg
+def optimal_approach():
+    if time_taken_generate_password_algorithm < time_taken_generate_passwords_pythonic:
+        print ("Алгоритмический подход быстрее")
+    elif time_taken_generate_password_algorithm > time_taken_generate_passwords_pythonic:
+        print("Подход с использованием функций Питона быстрее")
+    else:
+        print("Оба подхода выполняются с одинаковой скоростью")
+optimal_approach()
 
-# Функциональный подход (itertools)
-start_time_func = timeit.default_timer()
-functional_result_itertools = functional_approach_itertools(n)
-time_func = timeit.default_timer() - start_time_func
+# 2 часть. Ограничение - первый символ латинская буква, а второй символ только четная цифра.
 
-# Усложненный алгоритмический подход
-start_time_complex_alg = timeit.default_timer()
-complex_algorithmic_result = complex_algorithmic_approach(n)
-time_complex_alg = timeit.default_timer() - start_time_complex_alg
+def generate_password_with_constraint():
+    passwords = []
+    alphabet = string.ascii_letters
+    even_digits = '02468'
+    combinations = itertools.product(alphabet, even_digits)
+    for combo in combinations:
+        password = ''.join(combo)
+        passwords.append(password)
+    return passwords
 
-# Усложненный функциональный подход (itertools)
-start_time_complex_func = timeit.default_timer()
-complex_functional_result_itertools = complex_functional_approach_itertools(n)
-time_complex_func = timeit.default_timer() - start_time_complex_func
+generated_passwords_2 = generate_password_with_constraint()
 
-# Вывод результатов
-print("Алгоритмический подход:")
-print(algorithmic_result)
-print("Время выполнения: {:.6f} секунд".format(time_alg))
+print("\n2 часть: Генерация паролей с учетом ограничения", "\nВсе возможные комбинации:",generated_passwords_2, "\nКоличество комбинаций после усложнения:",len(generated_passwords_2))
 
-print("\nФункциональный подход (itertools):")
-print(functional_result_itertools)
-print("Время выполнения: {:.6f} секунд".format(time_func))
-
-print("\nУсложненный алгоритмический подход (кратные 5):")
-print(complex_algorithmic_result)
-print("Время выполнения: {:.6f} секунд".format(time_complex_alg))
-
-print("\nУсложненный функциональный подход (itertools, кратные 5):")
-print(complex_functional_result_itertools)
-print("Время выполнения: {:.6f} секунд".format(time_complex_func))
-
-start_time_func_np = timeit.default_timer()
-functional_result_numpy = functional_approach_numpy(n)
-time_func_np = timeit.default_timer() - start_time_func_np
-
-start_time_complex_func_np = timeit.default_timer()
-complex_functional_result_numpy = complex_functional_approach_numpy(n)
-time_complex_func_np = timeit.default_timer() - start_time_complex_func_np
-
-print("\nФункциональный подход (numpy):")
-print(functional_result_numpy)
-print("Время выполнения: {:.6f} секунд".format(time_func_np))
-
-print("\nУсложненный функциональный подход (numpy, кратные 5):")
-print(complex_functional_result_numpy)
-print("Время выполнения: {:.6f} секунд".format(time_complex_func_np))
-
-#  сравнение времени выполнения алгоритмического метода и с помощью itertools
-if time_alg > time_func:
-    print("\nФункциональный подход (itertools) быстрее алгоритмического подхода на {:.6f} секунд.".format(time_alg - time_func))
-else:
-    print("\nАлгоритмический подход быстрее функционального подхода (itertools) на {:.6f} секунд.".format(time_func - time_alg))
-
-if time_func < time_func_np:
-    print("\nФункциональный подход (itertools) быстрее функционального подхода (numpy) на {:.6f} секунд.".format(time_func_np - time_func))
-else:
-    print("\nФункциональный подход (numpy) быстрее функционального подхода (itertools) на {:.6f} секунд.".format(time_func - time_func_np))
-
-if time_complex_func < time_complex_func_np:
-    print("Усложненный функциональный подход (itertools, кратные 5) быстрее усложненного функционального подхода (numpy, кратные 5) на {:.6f} секунд.".format(time_complex_func_np - time_complex_func))
-else:
-    print("Усложненный функциональный подход (numpy, кратные 5) быстрее усложненного функционального подхода (itertools, кратные 5) на {:.6f} секунд.".format(time_complex_func - time_complex_func_np))
+time_taken_generate_password_with_constraint = timeit.timeit(lambda: generate_password_with_constraint, number=1)
+print("Время выполнения с учетом ограничения:", time_taken_generate_password_with_constraint)
