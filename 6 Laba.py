@@ -7,118 +7,87 @@
 
 На плоскости задано К точек. Сформировать все возможные варианты выбора множества точек из них на проверку того, что они являются вершинами квадрата.
 """
-from itertools import combinations
+#Часть 1 
+import itertools
 import timeit
 
-nmax = 20  # макс. кол.точек
-
-
-# является ли квадратом
-def square(a, b, c, d):
-    s1 = (a['x'] - b['x']) ** 2 + (a['y'] - b['y']) ** 2
-    s2 = (a['x'] - c['x']) ** 2 + (a['y'] - c['y']) ** 2
-    s3 = (a['x'] - d['x']) ** 2 + (a['y'] - d['y']) ** 2
-    s4 = (b['x'] - c['x']) ** 2 + (b['y'] - c['y']) ** 2
-    s5 = (b['x'] - d['x']) ** 2 + (b['y'] - d['y']) ** 2
-    s6 = (c['x'] - d['x']) ** 2 + (c['y'] - d['y']) ** 2
-    return ((s1 == s3) and (s1 == s4) and (s1 == s6) and (s2 == s5) and (s2 == 2 * s1)) \
-        or ((s1 == s2) and (s1 == s5) and (s1 == s6) and (s3 == s4) and (s3 == 2 * s1)) \
-        or ((s2 == s3) and (s2 == s4) and (s2 == s5) and (s1 == s6) and (s1 == 2 * s2))
-
-
-n = 0
-while n not in range(4, nmax + 1):
-     n = int(input(f"Количество точек от 4 до {nmax} n = "))
-
-t = [{'x': 0, 'y': 0} for _ in range(n)]  # массив точек
-
-print("Введите координаты", n, "точек, целые числа:")
-for i in range(n):
-    print("Точка", i + 1)
-    t[i]['x'] = int(input("x="))
-    t[i]['y'] = int(input("y="))
-
-
-def find_square_alg(t):
-    s_list = []
-    n_list = []
-    for i in range(n):
-        for j in range(i + 1, n):
-            for k in range(j + 1, n):
-                for l in range(k + 1, n):
-                    if square(t[i], t[j], t[k], t[l]):
-                        s_list.append([[t[i]['x'], t[i]['y']],
-                                       [t[j]['x'], t[j]['y']],
-                                       [t[k]['x'], t[k]['y']],
-                                       [t[l]['x'], t[l]['y']]])
-                    else:
-                        n_list.append([[t[i]['x'], t[i]['y']],
-                                       [t[j]['x'], t[j]['y']],
-                                       [t[k]['x'], t[k]['y']],
-                                       [t[l]['x'], t[l]['y']]])
-    return s_list, n_list
-
-
-def find_square_py(t):
-    s_list = []
-    n_list = []
-    for combination in list(combinations(t, 4)):
-        if square(combination[0], combination[1], combination[2], combination[3]):
-            s_list.append([[combination[0]['x'], combination[0]['y']],
-                           [combination[1]['x'], combination[1]['y']],
-                           [combination[2]['x'], combination[2]['y']],
-                           [combination[3]['x'], combination[3]['y']]])
+# Функция для алгоритмического подхода
+def algorithmic_approach(points):
+    permutations = []
+    n = len(points)
+    indices = list(range(n))
+    cycles = list(range(n, 0, -1))
+    permutations.append(tuple(points[i] for i in indices[:]))
+    while n:
+        for i in reversed(range(n)):
+            cycles[i] -= 1
+            if cycles[i] == 0:
+                indices[i:] = indices[i+1:] + indices[i:i+1]
+                cycles[i] = n - i
+            else:
+                j = cycles[i]
+                indices[i], indices[-j] = indices[-j], indices[i]
+                permutations.append(tuple(points[i] for i in indices[:]))
+                break
         else:
-            n_list.append([[combination[0]['x'], combination[0]['y']],
-                           [combination[1]['x'], combination[1]['y']],
-                           [combination[2]['x'], combination[2]['y']],
-                           [combination[3]['x'], combination[3]['y']]])
-    return s_list, n_list
+            break
+    return permutations
+
+# Функция для подхода с использованием функций Питона
+def python_functions_approach(points):
+    return list(itertools.permutations(points))
+
+# Функция для записи времени выполнения
+def score_time(func, points):
+    return timeit.timeit(lambda: func(points), number=1)
+
+# Пример точек
+points = [(1, 2), (3, 4), (5, 6), (7, 8)]
+
+# Измерение времени выполнения
+algorithmic_time = score_time(algorithmic_approach, points)
+python_functions_time = score_time(python_functions_approach, points)
+
+# Вывод результатов
+print(f"Алгоритмический подход: {algorithmic_time:.6f} сек")
+print(f"Подход с использованием функций Питона: {python_functions_time:.6f} сек")
 
 
-start_time = timeit.timeit()
-square_list, no_square_list = find_square_alg(t)
-algorithmic_time = timeit.timeit() - start_time
-print('Точки образующие квадрат(алгоритмический подход): ')
-print(*square_list, sep='\n')
-print('Точки не образующие квадрат(алгоритмический подход): ')
-print(*no_square_list, sep='\n')
-print('Время работы алгоритмического алгоритма: ', algorithmic_time)
+#Часть 2 Ограничение:
+#Расстояние между любыми двумя точками не должно превышать заданное значение
+import itertools
+import timeit
+import math
 
-start_time = timeit.timeit()
-square_list, no_square_list = find_square_py(t)
-pythonic_time = timeit.timeit() - start_time
-print('Точки образующие квадрат(python функция): ')
-print(*square_list, sep='\n')
-print('Точки не образующие квадрат(python функция): ')
-print(*no_square_list, sep='\n')
-print('Время работа алгоритма с python функцией: ', pythonic_time)
+# Функция для вычисления расстояния между двумя точками
+def distance(point1, point2):
+    return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
+# Функция для проверки ограничения на расстояние
+def check_distance_constraint(permutation, max_distance):
+    for i in range(len(permutation) - 1):
+        if distance(permutation[i], permutation[i+1]) > max_distance:
+            return False
+    return True
 
-def find_square_opt(t):
-    print('lox')
-    s_list = []
-    n_list = []
-    filtered_t = list(filter(lambda p: p['x'] % 2 == 0 and p['y'] % 2 == 0, t))
-    for combination in list(combinations(filtered_t, 4)):
-        if square(combination[0], combination[1], combination[2], combination[3]):
-            s_list.append([[combination[0]['x'], combination[0]['y']],
-                           [combination[1]['x'], combination[1]['y']],
-                           [combination[2]['x'], combination[2]['y']],
-                           [combination[3]['x'], combination[3]['y']]])
-        else:
-            n_list.append([[combination[0]['x'], combination[0]['y']],
-                           [combination[1]['x'], combination[1]['y']],
-                           [combination[2]['x'], combination[2]['y']],
-                           [combination[3]['x'], combination[3]['y']]])
-    return s_list, n_list
+# Функция для нахождения всех допустимых обходов с ограничением
+def find_valid_tours(points, max_distance):
+    valid_tours = []
+    for permutation in itertools.permutations(points):
+        if check_distance_constraint(permutation, max_distance):
+            valid_tours.append(permutation)
+    return valid_tours
 
+# Пример точек
+points = [(1, 2), (3, 4), (5, 6), (7, 8)]
+max_distance = 3.0
 
-start_time = timeit.timeit()
-square_list, no_square_list = find_square_opt(t)
-pythonic_time_opt = timeit.timeit() - start_time
-print('Точки (с четными координатами) образующие квадрат: ')
-print(*square_list, sep='\n')
-print('Точки (с четными координатами) не образующие квадрат: ')
-print(*no_square_list, sep='\n')
-print('Время работы оптимального алгоритма: ', pythonic_time_opt)
+# Измерение времени выполнения
+start_time = timeit.default_timer()
+valid_tours = find_valid_tours(points, max_distance)
+end_time = timeit.default_timer()
+
+# Вывод результатов
+print(f"Допустимые обходы: {valid_tours}")
+print(f"Время выполнения: {end_time - start_time:.6f} сек")
+
