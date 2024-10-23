@@ -9,9 +9,7 @@
 """
 #Часть 1 
 import itertools
-import timeit
 
-# Функция для алгоритмического подхода
 def algorithmic_approach(points):
     permutations = []
     n = len(points)
@@ -33,44 +31,33 @@ def algorithmic_approach(points):
             break
     return permutations
 
-# Функция для подхода с использованием функций Питона
 def python_functions_approach(points):
     return list(itertools.permutations(points))
 
-# Функция для записи времени выполнения
-def score_time(func, points):
-    return timeit.timeit(lambda: func(points), number=1)
-
-# Пример точек
 points = [(1, 2), (3, 4), (5, 6), (7, 8)]
 
-# Измерение времени выполнения
-algorithmic_time = score_time(algorithmic_approach, points)
-python_functions_time = score_time(python_functions_approach, points)
+print("Все возможные варианты обхода точек (алгоритмический подход):")
+algorithmic_permutations = algorithmic_approach(points)
+print(algorithmic_permutations)
 
-# Вывод результатов
-print(f"Алгоритмический подход: {algorithmic_time:.6f} сек")
-print(f"Подход с использованием функций Питона: {python_functions_time:.6f} сек")
-
+print("Все возможные варианты обхода точек (подход с использованием функций Питона):")
+python_functions_permutations = python_functions_approach(points)
+print(python_functions_permutations)
 
 #Часть 2 Ограничение:
 #Расстояние между любыми двумя точками не должно превышать заданное значение
 import itertools
-import timeit
 import math
 
-# Функция для вычисления расстояния между двумя точками
 def distance(point1, point2):
     return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
-# Функция для проверки ограничения на расстояние
 def check_distance_constraint(permutation, max_distance):
     for i in range(len(permutation) - 1):
         if distance(permutation[i], permutation[i+1]) > max_distance:
             return False
     return True
 
-# Функция для нахождения всех допустимых обходов с ограничением
 def find_valid_tours(points, max_distance):
     valid_tours = []
     for permutation in itertools.permutations(points):
@@ -78,16 +65,9 @@ def find_valid_tours(points, max_distance):
             valid_tours.append(permutation)
     return valid_tours
 
-# Пример точек
 points = [(1, 2), (3, 4), (5, 6), (7, 8)]
 max_distance = 3.0
 
-# Измерение времени выполнения
-start_time = timeit.default_timer()
+print("Допустимые обходы:")
 valid_tours = find_valid_tours(points, max_distance)
-end_time = timeit.default_timer()
-
-# Вывод результатов
-print(f"Допустимые обходы: {valid_tours}")
-print(f"Время выполнения: {end_time - start_time:.6f} сек")
-
+print(valid_tours)
