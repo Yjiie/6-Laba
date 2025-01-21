@@ -17,12 +17,20 @@ def is_square(points):
     distances.sort()
 
     # У квадрата должно быть 4 равных стороны и 2 равных диагонали
+    if len(distances) != 6:
+        return False
+
+    side = distances[0]
+    diagonal = distances[4]
+
     return (
-        math.isclose(distances[0], distances[1]) and
-        math.isclose(distances[1], distances[2]) and
-        math.isclose(distances[2], distances[3]) and
-        math.isclose(distances[4], distances[5]) and
-        math.isclose(distances[0] * math.sqrt(2), distances[4])
+        math.isclose(distances[0], side) and
+        math.isclose(distances[1], side) and
+        math.isclose(distances[2], side) and
+        math.isclose(distances[3], side) and
+        math.isclose(distances[4], diagonal) and
+        math.isclose(distances[5], diagonal) and
+        math.isclose(side * math.sqrt(2), diagonal)
     )
 
 # Алгоритмический подход
@@ -59,8 +67,13 @@ import random
 
 def generate_random_points(k, x_range=(0, 100), y_range=(0, 100)):
     """Генерация K случайных точек."""
-    return [(random.randint(*x_range), random.randint(*y_range)) for _ in range(k)]
-
+    points = [(random.randint(*x_range), random.randint(*y_range)) for _ in range(k // 2)]
+    # Добавляем точки с потенциальной квадратной структурой
+    for _ in range(k // 2):
+        x, y = random.randint(*x_range), random.randint(*y_range)
+        size = random.randint(5, 15)
+        points.extend([(x, y), (x + size, y), (x, y + size), (x + size, y + size)])
+    return random.sample(points, k)
 # Основной блок
 if __name__ == "__main__":
     K = 10  # Количество точек
