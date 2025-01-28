@@ -53,7 +53,3 @@ print("\nВсе перестановки (Python функции):")
 for perm in permutations_pythonic:
     print(perm)
 
-
-    # Сравнение времени выполнения
-    print("\nСравнение времени выполнения:")
-    print(f"Функциональный подход быстрее на {((time_algorithmic - time_functional) / time_algorithmic) * 100:.2f}%" if time_algorithmic > time_functional else f"Алгоритмический подход быстрее на {((time_functional - time_algorithmic) / time_functional) * 100:.2f}%")
