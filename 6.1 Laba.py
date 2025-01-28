@@ -5,105 +5,54 @@
 2 часть – усложнить написанную программу введя по своему усмотрению в условие минимум одно ограничение на характеристики
 объектов (которое будет сокращать количество переборов) и целевую функцию для нахождения оптимального решения.
 
-На плоскости задано К точек. Сформировать все возможные варианты выбора множества точек из них на проверку того, что они являются вершинами квадрата.
+На плоскости задано К точек. Сформировать все возможные варианты обхода этих точек.
 """
 import itertools
 import time
-import math
 
-def is_square(points):
-    """Проверка, образуют ли 4 точки квадрат."""
-    if len(points) != 4:
-        return False
+def generate_permutations_algorithmic(points):
+    """Алгоритмическое создание перестановок."""
+    def permute(points, l, r, result):
+        if l == r:
+            result.append(points[:])  # Создаем копию текущего состояния
+        else:
+            for i in range(l, r + 1):
+                points[l], points[i] = points[i], points[l]  # Меняем местами элементы
+                permute(points, l + 1, r, result)
+                points[l], points[i] = points[i], points[l]  # Возвращаем порядок обратно
 
-    # Вычисляем все расстояния между точками
-    distances = []
-    for i in range(len(points)):
-        for j in range(i + 1, len(points)):
-            dist = math.dist(points[i], points[j])
-            distances.append(dist)
+    result = []
+    permute(points, 0, len(points) - 1, result)
+    return result
 
-    distances.sort()
+def generate_permutations_pythonic(points):
+    """Создание перестановок с помощью itertools."""
+    return list(map(list, itertools.permutations(points)))
 
-    # У квадрата должно быть 4 равных стороны и 2 равных диагонали
-    if len(distances) != 6:
-        return False
+# Задаем точки
+k = 5  # Количество точек (можете изменить)
+points = [f"P{i}" for i in range(1, k + 1)]
 
-    side = distances[0]
-    diagonal = distances[4]
+print(f"Точки: {points}\n")
 
-    return (
-        math.isclose(distances[0], side) and
-        math.isclose(distances[1], side) and
-        math.isclose(distances[2], side) and
-        math.isclose(distances[3], side) and
-        math.isclose(distances[4], diagonal) and
-        math.isclose(distances[5], diagonal) and
-        math.isclose(side * math.sqrt(2), diagonal)
-    )
+# 1. Алгоритмический метод
+start_time = time.time()
+permutations_algorithmic = generate_permutations_algorithmic(points)
+algorithmic_time = time.time() - start_time
+print(f"Алгоритмический метод: {len(permutations_algorithmic)} перестановок за {algorithmic_time:.6f} секунд.")
+print("\nВсе перестановки (алгоритмический метод):")
+for perm in permutations_algorithmic:
+    print(perm)
 
-# Алгоритмический подход
-def generate_squares_algorithmic(points):
-    """Формирование квадратов алгоритмическим методом."""
-    squares = []
-    n = len(points)
-    for i in range(n):
-        for j in range(i + 1, n):
-            for k in range(j + 1, n):
-                for l in range(k + 1, n):
-                    subset = [points[i], points[j], points[k], points[l]]
-                    print(f"Проверяем комбинацию: {subset}")
-                    if is_square(subset):
-                        squares.append(subset)
-    return squares
+# 2. Метод с помощью Python функций
+start_time = time.time()
+permutations_pythonic = generate_permutations_pythonic(points)
+pythonic_time = time.time() - start_time
+print(f"\nPython функции: {len(permutations_pythonic)} перестановок за {pythonic_time:.6f} секунд.")
+print("\nВсе перестановки (Python функции):")
+for perm in permutations_pythonic:
+    print(perm)
 
-# Функциональный подход
-def generate_squares_functional(points):
-    """Формирование квадратов с использованием функций Python."""
-    squares = []
-    for combination in itertools.combinations(points, 4):
-        print(f"Проверяем комбинацию: {combination}")
-        if is_square(combination):
-            squares.append(combination)
-    return squares
-
-# Генерация случайных точек для теста
-import random
-
-def generate_random_points(k, x_range=(0, 100), y_range=(0, 100)):
-    """Генерация K случайных точек."""
-    points = [(random.randint(*x_range), random.randint(*y_range)) for _ in range(k // 2)]
-    # Добавляем точки с потенциальной квадратной структурой
-    for _ in range(k // 2):
-        x, y = random.randint(*x_range), random.randint(*y_range)
-        size = random.randint(5, 15)
-        points.extend([(x, y), (x + size, y), (x, y + size), (x + size, y + size)])
-    return random.sample(points, k)
-# Основной блок
-if __name__ == "__main__":
-    K = 10  # Количество точек
-    points = generate_random_points(K)
-    print(f"Сгенерированные точки: {points}")
-
-    # Измеряем время для алгоритмического подхода
-    start_time = time.time()
-    squares_algorithmic = generate_squares_algorithmic(points)
-    time_algorithmic = time.time() - start_time
-
-    # Измеряем время для функционального подхода
-    start_time = time.time()
-    squares_functional = generate_squares_functional(points)
-    time_functional = time.time() - start_time
-
-    # Вывод результатов
-    
-   # Вывод результатов
-   
-    print(f"Квадраты (алгоритмический подход): {squares_algorithmic}")
-    print(f"Время (алгоритмический подход): {time_algorithmic:.6f} секунд")
-    
-    print(f"Квадраты (функциональный подход): {squares_functional}")
-    print(f"Время (функциональный подход): {time_functional:.6f} секунд")
 
     # Сравнение времени выполнения
     print("\nСравнение времени выполнения:")
