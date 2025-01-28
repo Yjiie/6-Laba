@@ -30,7 +30,7 @@ def generate_permutations_pythonic(points):
     return list(map(list, itertools.permutations(points)))
 
 # Задаем точки
-k = 5  # Количество точек (можете изменить)
+k = 5  # Количество точек 
 points = [f"P{i}" for i in range(1, k + 1)]
 
 print(f"Точки: {points}\n")
